@@ -1,0 +1,29 @@
+@"
+# Build artifacts
+build/
+**/build/
+*.bin
+*.elf
+*.map
+*.hex
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.env
+*.env
+
+# Git & IDE
+.git/
+.github/
+.vscode/
+.idea/
+
+# Large / temporary
+zephyr-sdk-*.tar.xz
+*.tar.xz
+*.tar.gz
+*.zip
+*.log
+"@ | Out-File -Encoding utf8 build-runner/.dockerignore
