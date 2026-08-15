@@ -76,3 +76,13 @@ zephyr.elf
 zephyr.map
 zephyr.dts
 zephyr.dts.pre
+
+# Ignore Yocto heavy build artifacts
+tmp/
+sstate-cache/
+downloads/
+yocto-workspace/
+*.iso
+*.vmdk
+*.qcow2
+*.img
