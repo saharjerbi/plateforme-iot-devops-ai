@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-﻿# Python
+# Python
 __pycache__/
 *.py[cod]
 *.class
@@ -22,11 +21,12 @@ wheels/
 *.egg
 MANIFEST
 
-# Virtual environments
+# Virtual environments & RAG
 venv/
 ENV/
 env/
 .venv
+rag_db/
 
 # IDE
 .vscode/
@@ -63,6 +63,16 @@ build-runner/modules/
 build-runner/zephyr/
 build-runner/bootloader/
 
+# Yocto Heavy Build Artifacts & Workspace
+tmp/
+sstate-cache/
+downloads/
+yocto-workspace/
+*.iso
+*.vmdk
+*.qcow2
+*.img
+
 # CMake / Ninja artifacts
 CMakeCache.txt
 CMakeFiles/
@@ -77,10 +87,3 @@ zephyr.elf
 zephyr.map
 zephyr.dts
 zephyr.dts.pre
-=======
-docs/
-.env
-venv/
-__pycache__/
-rag_db/
->>>>>>> sahar/main
