@@ -172,7 +172,7 @@ Reponds de maniere concise, structuree et actionnable (avec les commandes exacte
 
     try:
         reponse = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model="openai/gpt-oss-20b",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.3,
             max_tokens=1024

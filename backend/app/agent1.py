@@ -5,7 +5,7 @@ from datetime import datetime
 from groq import Groq
 
 client_groq = Groq(api_key=os.getenv("GROQ_API_KEY"))
-GROQ_MODEL = "llama-3.1-8b-instant"
+GROQ_MODEL = "openai/gpt-oss-20b"
 ALLOWED_FRAMEWORKS = {"Zephyr RTOS", "Arduino/PlatformIO", "ESP-IDF", "Mbed OS", "inconnu"}
 
 FINGERPRINTS = {
