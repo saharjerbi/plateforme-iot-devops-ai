@@ -1,0 +1,14 @@
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# Python
+__pycache__/
+*.pyc
+
+# Zephyr build
+build/
+*.bin
+
+# Env local
+.env.local
