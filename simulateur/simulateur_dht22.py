@@ -3,9 +3,10 @@ import paho.mqtt.client as mqtt
 import json
 import time
 import random
+import os
 
-BROKER_IP = "172.21.249.96"
-BROKER_PORT = 1883
+BROKER_IP = os.getenv("MQTT_HOST", "localhost")
+BROKER_PORT = int(os.getenv("MQTT_PORT", 1883))
 TOPIC = "sensor/dht22"
 CLIENT_ID = "simulateur_dht22"
 

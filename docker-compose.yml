@@ -16,10 +16,12 @@ services:
     volumes:
       - ./mosquitto/config:/mosquitto/config
 
-  # Nour's simulator + MQTT bridge
   simulateur:
-    build: .
+    image: python:3.11-slim
     command: python simulateur/simulateur_dht22.py
+    volumes:
+      - ./simulateur:/simulateur
+      - ./pont-mqtt:/pont-mqtt
     environment:
       - MQTT_HOST=mosquitto
       - MQTT_PORT=1883
@@ -27,8 +29,10 @@ services:
       - mosquitto
 
   mqtt-bridge:
-    build: .
-    command: python pont-mqtt/mqtt_to_influxdb.py
+    image: python:3.11-slim
+    command: pip install paho-mqtt influxdb-client && python pont-mqtt/mqtt_to_influxdb.py
+    volumes:
+      - ./pont-mqtt:/pont-mqtt
     environment:
       - MQTT_HOST=mosquitto
       - MQTT_PORT=1883
