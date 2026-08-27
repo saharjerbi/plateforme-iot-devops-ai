@@ -1,8 +1,4 @@
-﻿"""Configuration management for Agent 2 (Architect).
-
-Modified to use Groq API instead of Anthropic, reusing the same
-GROQ_API_KEY as Agent 1 for cost-free operation.
-"""
+"""Configuration management for Agent 2 (Architect)."""
 
 import os
 

@@ -1,4 +1,4 @@
-﻿"""Custom exceptions for Agent 2 (Architect) module."""
+"""Custom exceptions for Agent 2 (Architect) module."""
 
 
 class Agent2Error(Exception):

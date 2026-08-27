@@ -1,1 +1,1 @@
-﻿"""Agent 2 (Architect) — AI-driven embedded systems architecture decisions."""
+﻿"""Agent 2 (Architect) module — architecture decision engine."""

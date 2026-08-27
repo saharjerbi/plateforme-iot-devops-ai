@@ -1,7 +1,10 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from agent1 import analyser_depot_complet
-from agent4 import indexer_tous_les_documents, repondre_question, repondre_avec_llm
+from app.agent1 import analyser_depot_complet
+from app.agent4 import indexer_tous_les_documents, repondre_question, repondre_avec_llm
+from src.agent2.architect import ArchitectAgent
+from src.agent2.config import AgentConfig
+import os
 
 app = FastAPI(title="IoT Backend - Sahar")
 
@@ -36,6 +39,54 @@ def analyser(requete: RequeteAnalyse):
 @app.post("/analyze/details")
 def analyser_details(requete: RequeteAnalyse):
     return analyser_depot_complet(requete.url_github)
+
+# ═════════════════════════════════════════════════════════════════════
+# Agent 2 — Architecte (via Groq, avec mock mode de secours)
+# ═════════════════════════════════════════════════════════════════════
+@app.post("/architect")
+def architect(requete: RequeteAnalyse):
+    """
+    Chaîne complète: Agent 1 (analyse) → Agent 2 (decision d'architecture)
+
+    Utilise Groq (same key as Agent 1) ou mock mode si GROQ_API_KEY absent.
+    """
+    rapport = analyser_depot_complet(requete.url_github)
+
+    # Décider du mode (mock ou LLM)
+    mock_mode = os.getenv("AGENT2_MOCK", "0") == "1" or not os.getenv("GROQ_API_KEY")
+
+    try:
+        config = AgentConfig()
+        agent2 = ArchitectAgent(config, mock_mode=mock_mode)
+        decision = agent2.analyze(rapport)
+        return {
+            "agent1_analysis": rapport,
+            "agent2_decision": decision,
+            "mode": "mock" if mock_mode else "groq",
+        }
+    except Exception as e:
+        return {
+            "agent1_analysis": rapport,
+            "agent2_decision": None,
+            "error": str(e),
+            "mode": "mock",
+        }
+
+@app.post("/architect/mock")
+def architect_mock():
+    """
+    Endpoint de test rapide avec le mock_agent1_output.json fourni.
+    Aucun token consommé, fonctionne offline.
+    """
+    mock_mode = True
+    try:
+        config = AgentConfig()
+        agent2 = ArchitectAgent(config, mock_mode=mock_mode)
+        analysis = agent2.load_analysis(config.input_file)
+        decision = agent2.analyze(analysis)
+        return decision
+    except Exception as e:
+        return {"error": str(e)}
 
 # ═════════════════════════════════════════════════════════════════════
 # Agent 4 — Assistant RAG
