@@ -7,7 +7,7 @@ services:
       - .env
     volumes:
       - ./docs_rag:/app/docs_rag:ro
-      - rag_db:/app/rag_db
+      - ./rag_db:/app/rag_db
 
   mosquitto:
     image: eclipse-mosquitto:2
@@ -15,6 +15,27 @@ services:
       - "1883:1883"
     volumes:
       - ./mosquitto/config:/mosquitto/config
+
+  # Nour's simulator + MQTT bridge
+  simulateur:
+    build: .
+    command: python simulateur/simulateur_dht22.py
+    environment:
+      - MQTT_HOST=mosquitto
+      - MQTT_PORT=1883
+    depends_on:
+      - mosquitto
+
+  mqtt-bridge:
+    build: .
+    command: python pont-mqtt/mqtt_to_influxdb.py
+    environment:
+      - MQTT_HOST=mosquitto
+      - MQTT_PORT=1883
+      - INFLUXDB_HOST=influxdb
+    depends_on:
+      - mosquitto
+      - influxdb
 
   influxdb:
     image: influxdb:2.7
@@ -34,7 +55,6 @@ services:
     ports:
       - "3000:3000"
 
- 
 volumes:
   influx_data:
   rag_db:
