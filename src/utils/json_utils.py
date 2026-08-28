@@ -1,4 +1,4 @@
-﻿"""JSON parsing utilities with robust markdown code-block extraction."""
+"""JSON parsing utilities with robust markdown code-block extraction."""
 
 import json
 import re

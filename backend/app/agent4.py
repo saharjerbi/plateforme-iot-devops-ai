@@ -146,7 +146,14 @@ def repondre_avec_llm(question: str) -> Dict[str, Any]:
     """
     from groq import Groq
 
-    client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        return {
+            "reponse": "⚠️ Clé API Groq non configurée — utilisez /assistant (mode mock) pour éviter les coûts.",
+            "sources": [],
+            "mode": "erreur (clé API manquante)",
+        }
+    client = Groq(api_key=api_key)
     chunks = rechercher_documents(question, n_results=3)
 
     if not chunks:

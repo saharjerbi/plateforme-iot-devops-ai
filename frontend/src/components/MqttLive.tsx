@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import mqtt from "mqtt";
 
+const MQTT_WS_URL = import.meta.env.VITE_MQTT_WS_URL || "ws://localhost:9001";
+
 interface MqttMessage {
   time: string;
   temp: number;
@@ -18,7 +20,7 @@ export default function MqttLive() {
   useEffect(() => {
     if (clientRef.current) return;
 
-    const client = mqtt.connect("ws://localhost:9001", {
+    const client = mqtt.connect(MQTT_WS_URL, {
       reconnectPeriod: 5000,
       connectTimeout: 30 * 1000,
       keepalive: 30,

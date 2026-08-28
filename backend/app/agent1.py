@@ -4,9 +4,22 @@ from typing import Dict, List, Any, Set
 from datetime import datetime
 from groq import Groq
 
-client_groq = Groq(api_key=os.getenv("GROQ_API_KEY"))
 GROQ_MODEL = "openai/gpt-oss-20b"
 ALLOWED_FRAMEWORKS = {"Zephyr RTOS", "Arduino/PlatformIO", "ESP-IDF", "Mbed OS", "inconnu"}
+
+# ── Groq client (lazy — évite l'échec d'import si GROQ_API_KEY absent) ──
+_client_groq: Groq | None = None
+
+def _get_groq_client() -> Groq | None:
+    """Retourne le client Groq, ou None si la clé API n'est pas configurée."""
+    global _client_groq
+    if _client_groq is not None:
+        return _client_groq
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        return None
+    _client_groq = Groq(api_key=api_key)
+    return _client_groq
 
 FINGERPRINTS = {
     "Zephyr RTOS": {"fichiers_requis": ["prj.conf"], "fichiers_bonus": ["CMakeLists.txt", "Kconfig", "west.yml"]},
@@ -214,7 +227,10 @@ INSTRUCTIONS :
 Reponds UNIQUEMENT en JSON :
 {{"chain_of_thought": "etape 1: ... etape 2: ... etape 3: ...", "framework": "...", "confiance": "moyenne", "raisonnement": "resume final"}}"""
         try:
-            reponse = client_groq.chat.completions.create(
+            client = _get_groq_client()
+            if client is None:
+                return {"framework": "inconnu", "confiance": "basse", "raisonnement": "Clé API Groq non configurée — mode mock"}
+            reponse = client.chat.completions.create(
                 model=GROQ_MODEL,
                 messages=[{"role": "user", "content": prompt}],
                 response_format={"type": "json_object"},

@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from app.agent1 import analyser_depot_complet
 from app.agent4 import indexer_tous_les_documents, repondre_question, repondre_avec_llm
@@ -7,6 +8,15 @@ from src.agent2.config import AgentConfig
 import os
 
 app = FastAPI(title="IoT Backend - Sahar")
+
+# ── CORS : autoriser le frontend React à appeler l'API ──────────────────
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+    allow_credentials=True,
+)
 
 class RequeteAnalyse(BaseModel):
     url_github: str

@@ -53,10 +53,9 @@ class AgentConfig:
     def _resolve_api_key(self) -> str:
         api_key = os.getenv("GROQ_API_KEY")
         if not api_key:
-            raise ApiKeyError(
-                "GROQ_API_KEY environment variable is required. "
-                "Set it before running: $env:GROQ_API_KEY = 'your-key-here'"
-            )
+            # Allow missing key in mock mode — ArchitectAgent only creates
+            # the Groq client when mock_mode=False.
+            return ""
         return api_key
 
     def _parse_int(self, value: str, name: str) -> int:
