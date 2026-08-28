@@ -19,7 +19,7 @@ services:
 
   simulateur:
     image: python:3.11-slim
-    command: python simulateur/simulateur_dht22.py
+    command: sh -c "pip install --no-cache-dir paho-mqtt && python simulateur/simulateur_dht22.py"
     volumes:
       - ./simulateur:/simulateur
       - ./pont-mqtt:/pont-mqtt
@@ -31,7 +31,7 @@ services:
 
   mqtt-bridge:
     image: python:3.11-slim
-    command: pip install paho-mqtt influxdb-client && python pont-mqtt/mqtt_to_influxdb.py
+    command: sh -c "pip install --no-cache-dir paho-mqtt influxdb-client && python pont-mqtt/mqtt_to_influxdb.py"
     volumes:
       - ./pont-mqtt:/pont-mqtt
     environment:
