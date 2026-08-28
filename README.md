@@ -37,7 +37,19 @@ Projet de stage — Équipe : Sahar (Agent 1), Ameni (Agent 2), Nour (Frontend +
 
 ### 🧠 Agent 1 (Sahar) — Analyseur de projets embarqués
 - `backend/app/agent1.py` — Agent qui clone un dépôt GitHub (`git clone --depth 1`), détecte le framework (Zephyr, Arduino, ESP-IDF, Mbed OS) via des *fingerprints* de fichiers, extrait les protocoles (MQTT, WiFi, BLE…) et la carte cible, puis valide la cohérence.
+- `backend/app/agent4.py` — Agent RAG (retrieval-augmented generation) : indexe les docs techniques dans ChromaDB (`all-MiniLM-L6-v2`), répond aux questions en mode mock (chunks bruts, 0 token) ou avec Groq LLM (`/assistant/llm`)
 - `backend/app/main.py` — API FastAPI avec CORS, endpoints `/analyze`, `/architect`, `/architect/mock`, `/assistant`, `/assistant/llm`
+
+### 🧠 Agent 4 (Sahar) — Assistant RAG
+- `backend/app/agent4.py` — Chatbot technique basé sur le **RAG** (Retrieval-Augmented Generation) :
+  - Indexe automatiquement tous les fichiers `.md` de `docs_rag/` au démarrage (`indexer_tous_les_documents()`)
+  - Découpe en chunks de 500 caractères (overlap 50) via `RecursiveCharacterTextSplitter`
+  - Génère des embeddings locaux avec `all-MiniLM-L6-v2` (CPU, ~80 Mo, zéro dépendance externe)
+  - Stocke dans **ChromaDB** (`PersistentClient`) pour recherche par similarité cosinus
+- **Deux modes** :
+  - `/assistant` → **Mock** : retourne les chunks bruts (0 token Groq consommé)
+  - `/assistant/llm` → **Complet** : chunks + Groq LLM (`openai/gpt-oss-20b`) pour synthétiser une réponse concise et actionnable
+- **Utilité** : permet aux développeurs de poser des questions techniques sur leurs projets embarqués (ex: "Comment configurer MQTT sur Zephyr ?", "Pourquoi mon build échoue ?") et d'obtenir des réponses contextualisées à partir de la documentation indexée dans `docs_rag/`
 
 ### 🏗️ Agent 2 (Ameni) — Architecte des décisions d'infrastructure
 - `backend/src/agent2/architect.py` — Décision d'architecture (build strategy, OTA, monitoring, MQTT broker) via Groq LLM ou mode mock (offline, 0 coût)
@@ -87,7 +99,8 @@ npm run dev
 
 ### API Backend
 ```
-http://localhost:8000/docs  — Swagger UI avec tous les endpoints
+http://localhost:8000/docs  — Swagger UI interactive (test tous les endpoints en un clic)
+http://localhost:8000/redoc — Alternative ReDoc
 ```
 
 ---
@@ -103,15 +116,37 @@ http://localhost:8000/docs  — Swagger UI avec tous les endpoints
 | `POST` | `/assistant/llm` | Agent 4 — Chatbot RAG + Groq LLM (synthèse) |
 
 ### Exemples
+**Via Swagger UI** (`http://localhost:8000/docs`) : cliquez sur chaque endpoint, entrez le body JSON, et exécutez.
+
 ```bash
-# Analyser un projet
+# Agent 1 — Analyser un dépôt GitHub
 curl -X POST http://localhost:8000/analyze \
   -H "Content-Type: application/json" \
   -d '{"url_github": "https://github.com/zephyrproject-rtos/zephyr"}'
 
-# Décision mock (0 token)
+# Agent 2 — Décision mock (0 token)
 curl -X POST http://localhost:8000/architect/mock
+
+# Agent 4 — Chatbot RAG (mode mock, 0 token)
+curl -X POST http://localhost:8000/assistant \
+  -H "Content-Type: application/json" \
+  -d '{"question": "Comment configurer MQTT sur Zephyr ?"}'
 ```
+
+### Base de connaissances RAG (`docs_rag/`)
+
+| Fichier | Thème |
+|---------|-------|
+| `zephyr_premier_build.md` | Guide de premier build Zephyr |
+| `erreur_agent1.md` | Dépannage erreurs Agent 1 |
+| `erreur_docker.md` | Dépannage Docker / build-runner |
+| `erreur_mqtt.md` | Dépannage connexion MQTT |
+| `erreur_prj_conf.md` | Dépannage `prj.conf` |
+| `erreur_west_build.md` | Dépannage `west build` |
+| `erreur_west_hors_workspace.md` | Erreur de workspace Zephyr |
+| `erreur_west_version_obsolete.md` | Mise à jour `west` |
+
+Ces fichiers sont indexés automatiquement par ChromaDB au démarrage du backend.
 
 ---
 
